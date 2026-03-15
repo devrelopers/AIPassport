@@ -1,3 +1,9 @@
+---
+title: Roadmap
+layout: default
+nav_order: 7
+---
+
 # AIPassport Roadmap
 
 This document outlines the phased development plan for AIPassport, from the current MVP to a production-grade delegated AI access system.

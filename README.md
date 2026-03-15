@@ -191,10 +191,20 @@ This is an **exploratory reference implementation**. The following limitations a
 
 ## Documentation
 
+**[View the full documentation site](https://devrelopers.github.io/AIPassport/)**
+
+The docs site covers concepts, architecture, security model, API reference, roadmap, and current limitations. It is built from Markdown files in `docs/` and published to GitHub Pages automatically on push to `main`.
+
+Source references:
+
 - [Architecture](docs/architecture.md) -- system design, security boundaries, data flows, and trust model
 - [Roadmap](docs/roadmap.md) -- phased plan from MVP to production-grade system
 - [Changelog](CHANGELOG.md) -- version history
 - [Security](SECURITY.md) -- security model and responsible disclosure
+
+### Updating the docs
+
+The docs site uses Jekyll with the [just-the-docs](https://just-the-docs.com/) theme. Pages are Markdown files in `docs/` with YAML front matter. To add or edit a page, edit the Markdown and push to `main` — GitHub Actions builds and deploys automatically. No local Ruby or Jekyll installation is required.
 
 ## Contributing
 

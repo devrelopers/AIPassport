@@ -1,3 +1,9 @@
+---
+title: Architecture
+layout: default
+nav_order: 4
+---
+
 # AIPassport Architecture
 
 This document describes the system architecture of the AIPassport broker, its security boundaries, data flows, and trust model.

@@ -6,6 +6,10 @@ AIPassport is an exploratory reference implementation of a broker that sits betw
 
 > **Status:** This is a reference implementation and a starting point for discussion — not a finished standard or production system. See [SECURITY.md](SECURITY.md) for known limitations.
 
+## See it in action
+
+[repo-mood](https://github.com/devrelopers/repo-mood) is the reference demo app for AIPassport. It reads the emotional state of any public GitHub repo using real activity signals and Claude — and supports AIPassport mode so your Anthropic API key never touches the browser.
+
 ## The Problem
 
 Today, when a website wants to use AI on your behalf, you paste your raw API key directly into their app. This means:
@@ -171,7 +175,7 @@ npm run dev
 | `GOOGLE_API_KEY` | Your Google AI API key | -- |
 | `JWT_SECRET` | HMAC secret for signing JWT tokens | Auto-generated |
 
-> **Note:** At least one provider API key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GOOGLE_API_KEY`) is needed for the proxy to work.
+> **Note:** At least one provider API key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GOOGLE_API_KEY`) is needed for the proxy to work. Common alternative names are also accepted — see `.env.example` for the full list.
 
 ## Security Caveats
 

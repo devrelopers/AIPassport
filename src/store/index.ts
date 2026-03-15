@@ -582,17 +582,44 @@ export function incrementUsage(grantId: string): boolean {
 /**
  * Reads the upstream API key for a given provider from environment variables.
  * This is the ONLY place raw keys are accessed.
+ *
+ * Each provider has a priority-ordered list of accepted env var names so that
+ * users who already have keys under common alternative names (e.g. CLAUDE_KEY,
+ * OPENAI_KEY) don't need to rename or duplicate them. The first non-empty
+ * match wins.
  */
 export function getProviderKey(provider: string): string | undefined {
-  const envMap: Record<string, string> = {
-    openai: "OPENAI_API_KEY",
-    anthropic: "ANTHROPIC_API_KEY",
-    google: "GOOGLE_API_KEY",
+  const aliasMap: Record<string, string[]> = {
+    openai: [
+      "OPENAI_API_KEY",
+      "OPENAI_KEY",
+      "OPEN_AI_API_KEY",
+      "OPEN_AI_KEY",
+    ],
+    anthropic: [
+      "ANTHROPIC_API_KEY",
+      "ANTHROPIC_KEY",
+      "CLAUDE_API_KEY",
+      "CLAUDE_KEY",
+      "CLAUDE_SECRET_KEY",
+    ],
+    google: [
+      "GOOGLE_API_KEY",
+      "GOOGLE_AI_API_KEY",
+      "GEMINI_API_KEY",
+      "GEMINI_KEY",
+    ],
   };
 
-  const envVar = envMap[provider];
-  if (!envVar) return undefined;
-  return process.env[envVar];
+  const aliases = aliasMap[provider];
+  if (!aliases) return undefined;
+
+  for (const name of aliases) {
+    const value = process.env[name];
+    if (value && value.trim().length > 0) return value.trim();
+  }
+
+  return undefined;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,8 +1,10 @@
-# AIPassport - OAuth-Inspired Delegated AI Access
+# AIPassport
 
-**Stop sharing raw API keys with every website that wants to use AI on your behalf.**
+**OAuth-inspired delegated AI access — stop sharing raw API keys with every app that wants to use AI on your behalf.**
 
-AIPassport is a broker that lets users delegate scoped, time-limited, revocable access to their AI providers -- without ever exposing their raw API keys. Think of it as OAuth for AI APIs: the website gets a short-lived token, the broker enforces the rules, and your real credentials never leave a server you control.
+AIPassport is an exploratory reference implementation of a broker that sits between third-party applications and upstream AI providers. Users grant apps scoped, time-limited, revocable access through signed JWT tokens. The broker enforces permissions, proxies requests, and injects real API credentials only at the point of the upstream call. Raw provider keys never leave the server.
+
+> **Status:** This is a reference implementation and a starting point for discussion — not a finished standard or production system. See [SECURITY.md](SECURITY.md) for known limitations.
 
 ## The Problem
 

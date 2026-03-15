@@ -7,7 +7,10 @@ import { proxyToProvider } from "../lib/proxy.js";
 export function proxyRouter(): Router {
   const router = Router();
 
-  // POST /proxy/chat - Proxy a chat request to the upstream AI provider
+  // POST /proxy/chat - Proxy a chat request to the upstream AI provider.
+  // This endpoint is provider-agnostic: the target provider (OpenAI, Anthropic,
+  // Google, etc.) is determined by the grant's scope, not by the URL path.
+  // There are no per-provider proxy routes like /proxy/anthropic or /proxy/openai.
   router.post("/proxy/chat", validate(ProxyRequestSchema), async (req, res) => {
     // Extract bearer token from Authorization header
     const authHeader = req.headers.authorization;

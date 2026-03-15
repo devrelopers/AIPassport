@@ -4,6 +4,19 @@ All notable changes to AIPassport are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-03-15 - patch
+
+### Added
+- `getProviderKey()` now accepts common env var aliases per provider (e.g. `CLAUDE_API_KEY`, `CLAUDE_KEY`, `GEMINI_API_KEY`) so users don't need to rename existing keys
+
+### Changed
+- `.env.example` updated to document all accepted alias names per provider
+
+### Fixed
+- Clarified that `/proxy/chat` is the single proxy endpoint — provider routing is determined by the grant scope, not the URL path (there is no `/proxy/anthropic` or `/proxy/openai`)
+
+---
+
 ## [0.2.0] - 2026-03-15
 
 ### Added

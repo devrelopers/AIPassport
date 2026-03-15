@@ -166,3 +166,11 @@ export const CreateGrantRequestSchema = z.object({
   reason: z.string().min(1),
 });
 export type CreateGrantRequestInput = z.infer<typeof CreateGrantRequestSchema>;
+
+/**
+ * Validates POST body for issuing a delegated token.
+ */
+export const IssueTokenSchema = z.object({
+  grantId: z.string().min(1),
+});
+export type IssueTokenInput = z.infer<typeof IssueTokenSchema>;

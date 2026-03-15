@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { ProxyRequestSchema } from "../types/index.js";
+import { validate } from "../middleware/validate.js";
 import { validateToken, incrementUsage } from "../store/index.js";
 import { proxyToProvider } from "../lib/proxy.js";
 
@@ -6,7 +8,7 @@ export function proxyRouter(): Router {
   const router = Router();
 
   // POST /proxy/chat - Proxy a chat request to the upstream AI provider
-  router.post("/proxy/chat", async (req, res) => {
+  router.post("/proxy/chat", validate(ProxyRequestSchema), async (req, res) => {
     // Extract bearer token from Authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {

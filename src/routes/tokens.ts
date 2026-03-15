@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { IssueTokenSchema } from "../types/index.js";
+import { validate } from "../middleware/validate.js";
 import {
   getGrant,
   issueToken,
@@ -9,12 +11,8 @@ export function tokensRouter(): Router {
   const router = Router();
 
   // POST /tokens - Issue a delegated token
-  router.post("/tokens", async (req, res) => {
-    const { grantId } = req.body as { grantId?: string };
-    if (!grantId) {
-      res.status(400).json({ error: "grantId is required" });
-      return;
-    }
+  router.post("/tokens", validate(IssueTokenSchema), async (req, res) => {
+    const { grantId } = req.body;
 
     const grant = getGrant(grantId);
     if (!grant) {

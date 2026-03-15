@@ -201,6 +201,14 @@ const stmts = {
     UPDATE grants SET status = @status, revoked_at = @revoked_at WHERE id = @id
   `),
 
+  approveGrant: db.prepare(`
+    UPDATE grants SET status = 'approved', approved_at = @approved_at, expires_at = @expires_at WHERE id = @id
+  `),
+
+  denyGrant: db.prepare(`
+    UPDATE grants SET status = 'denied' WHERE id = ?
+  `),
+
   incrementUsage: db.prepare(`
     UPDATE grants SET usage_count = usage_count + 1 WHERE id = ?
   `),
@@ -317,6 +325,94 @@ export function getGrant(id: string): Grant | undefined {
 export function getAllGrants(): Grant[] {
   const rows = stmts.getAllGrants.all() as GrantRow[];
   return rows.map(rowToGrant);
+}
+
+/**
+ * Creates a Grant in 'pending' status from a GrantRequest.
+ * Used when an app submits a grant request and the user has not yet decided.
+ */
+export function createPendingGrant(requestId: string): Grant {
+  const row = stmts.getGrantRequest.get(requestId) as
+    | GrantRequestRow
+    | undefined;
+  if (!row) {
+    throw new Error(`GrantRequest ${requestId} not found`);
+  }
+  const request = rowToGrantRequest(row);
+
+  const now = new Date();
+  const grant: Grant = {
+    id: crypto.randomUUID(),
+    requestId,
+    appName: request.appName,
+    appUrl: request.appUrl,
+    scope: request.scope,
+    status: "pending",
+    version: "1",
+    createdAt: now.toISOString(),
+    expiresAt: new Date(now.getTime() + 3600 * 1000).toISOString(),
+    usageCount: 0,
+    usageBudgetCents: 0,
+  };
+
+  stmts.insertGrant.run({
+    id: grant.id,
+    request_id: grant.requestId,
+    app_name: grant.appName,
+    app_url: grant.appUrl,
+    scope: JSON.stringify(grant.scope),
+    status: grant.status,
+    version: grant.version,
+    created_at: grant.createdAt,
+    expires_at: grant.expiresAt,
+    approved_at: null,
+    revoked_at: null,
+    usage_count: 0,
+    usage_budget_cents: 0,
+    notes: null,
+  });
+
+  return grant;
+}
+
+/**
+ * Approves a pending grant. Sets status to 'approved' and computes expiresAt
+ * from expiresInSeconds (default 3600).
+ */
+export function approveGrant(id: string, expiresInSeconds?: number): Grant {
+  const row = stmts.getGrant.get(id) as GrantRow | undefined;
+  if (!row) {
+    throw new Error(`Grant ${id} not found`);
+  }
+  if (row.status !== "pending") {
+    throw new Error(`Grant is '${row.status}', must be 'pending'`);
+  }
+
+  const ttl = expiresInSeconds ?? 3600;
+  const now = new Date();
+  stmts.approveGrant.run({
+    id,
+    approved_at: now.toISOString(),
+    expires_at: new Date(now.getTime() + ttl * 1000).toISOString(),
+  });
+
+  return rowToGrant(stmts.getGrant.get(id) as GrantRow);
+}
+
+/**
+ * Denies a pending grant.
+ */
+export function denyGrant(id: string): Grant {
+  const row = stmts.getGrant.get(id) as GrantRow | undefined;
+  if (!row) {
+    throw new Error(`Grant ${id} not found`);
+  }
+  if (row.status !== "pending") {
+    throw new Error(`Grant is '${row.status}', must be 'pending'`);
+  }
+
+  stmts.denyGrant.run(id);
+  return rowToGrant(stmts.getGrant.get(id) as GrantRow);
 }
 
 /**

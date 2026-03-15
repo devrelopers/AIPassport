@@ -1,9 +1,14 @@
 title: AIPassport
 description: OAuth-inspired delegated AI access — an exploratory reference implementation
-remote_theme: just-the-docs/just-the-docs@v0.10.0
+remote_theme: just-the-docs/just-the-docs
 
 url: "https://devrelopers.github.io"
 baseurl: "/AIPassport"
+
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+  - jekyll-include-cache
 
 # Footer
 aux_links:

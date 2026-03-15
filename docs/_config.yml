@@ -16,6 +16,8 @@ aux_links:
     - "https://github.com/devrelopers/AIPassport"
   "Releases":
     - "https://github.com/devrelopers/AIPassport/releases"
+  "Devrelopers":
+    - "https://github.com/devrelopers"
 
 aux_links_new_tab: true
 

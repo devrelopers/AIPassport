@@ -49,5 +49,6 @@ See [Getting Started](getting-started) to run it locally, or [Architecture](arch
 ## Links
 
 - [GitHub Repository](https://github.com/devrelopers/AIPassport)
+- [Devrelopers on GitHub](https://github.com/devrelopers)
 - [v0.2.0 Release](https://github.com/devrelopers/AIPassport/releases/tag/v0.2.0)
 - [Changelog](https://github.com/devrelopers/AIPassport/blob/main/CHANGELOG.md)

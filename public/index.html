@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIPassport - Delegated AI Access</title>
+  <style>
+    :root {
+      --primary: #2d3561;
+      --primary-light: #3e4a7a;
+      --primary-dark: #1e2444;
+      --accent: #7c5cbf;
+      --accent-light: #9b7fd4;
+      --accent-glow: rgba(124, 92, 191, 0.15);
+      --bg: #f4f5f9;
+      --surface: #ffffff;
+      --border: #e0e2eb;
+      --text: #1e2444;
+      --text-muted: #6b7194;
+      --success: #22c55e;
+      --success-bg: #dcfce7;
+      --warning: #eab308;
+      --warning-bg: #fef9c3;
+      --danger: #ef4444;
+      --danger-bg: #fee2e2;
+      --muted: #94a3b8;
+      --muted-bg: #f1f5f9;
+      --radius: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow: 0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+      --transition: 0.2s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: #fff;
+      padding: 2.5rem 2rem 2rem;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.25rem;
+    }
+    .header h1 span {
+      font-weight: 300;
+      opacity: 0.85;
+    }
+    .header .subtitle {
+      font-size: 1rem;
+      opacity: 0.8;
+      font-weight: 400;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      background: var(--primary-dark);
+      padding: 0 1rem;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      padding: 0.85rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: var(--transition);
+    }
+    .tab-btn:hover { color: rgba(255,255,255,0.9); }
+    .tab-btn.active {
+      color: #fff;
+      border-bottom-color: var(--accent-light);
+    }
+
+    /* Main content */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--primary);
+    }
+    .card .card-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      transition: var(--transition);
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .checkbox-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.9rem;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.25rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: var(--shadow);
+      transform: translateY(-1px);
+    }
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+    .btn-success:hover:not(:disabled) { background: #16a34a; }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn-danger:hover:not(:disabled) { background: #dc2626; }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-outline:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .btn-sm {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    /* Status badges */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    .badge-pending { background: var(--warning-bg); color: #a16207; }
+    .badge-approved { background: var(--success-bg); color: #15803d; }
+    .badge-denied { background: var(--danger-bg); color: #b91c1c; }
+    .badge-revoked { background: var(--muted-bg); color: #475569; }
+    .badge-expired { background: var(--muted-bg); color: #475569; }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 0 -0.25rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    th {
+      text-align: left;
+      padding: 0.65rem 0.75rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--accent-glow); }
+
+    /* Response/output */
+    .output {
+      background: var(--primary-dark);
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.825rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin-top: 1rem;
+      min-height: 2.5rem;
+    }
+    .output:empty::before {
+      content: "Response will appear here...";
+      color: #64748b;
+    }
+
+    /* Alert / message boxes */
+    .msg {
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-top: 1rem;
+    }
+    .msg-error { background: var(--danger-bg); color: #b91c1c; }
+    .msg-success { background: var(--success-bg); color: #15803d; }
+    .msg-info { background: #eff6ff; color: #1d4ed8; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+    .empty-state p { font-size: 0.95rem; }
+
+    /* Token display */
+    .token-box {
+      background: var(--accent-glow);
+      border: 1px solid var(--accent-light);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .token-box code {
+      display: block;
+      word-break: break-all;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.825rem;
+      color: var(--accent);
+      margin-top: 0.35rem;
+    }
+    .token-box .note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    /* Chat area */
+    .chat-area {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .chat-area input {
+      flex: 1;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .chat-area input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* Loading spinner */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .tabs { overflow-x: auto; }
+      .tab-btn { padding: 0.75rem 1rem; font-size: 0.825rem; white-space: nowrap; }
+      .container { padding: 1.25rem 1rem; }
+    }
+
+    /* Inline selectors row */
+    .inline-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .inline-row .form-group { flex: 1; min-width: 180px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AI<span>Passport</span></h1>
+  <p class="subtitle">Delegate AI access without sharing your API keys</p>
+</div>
+
+<div style="background: #1e2444; color: rgba(255,255,255,0.7); text-align: center; padding: 0.5rem 1rem; font-size: 0.8rem;">
+  Your API keys are stored server-side only. Third-party apps receive signed JWT tokens — never raw credentials.
+</div>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="request">Request Access</button>
+  <button class="tab-btn" data-tab="grants">Consent &amp; Grants</button>
+  <button class="tab-btn" data-tab="tryit">Try It</button>
+</nav>
+
+<div class="container">
+
+  <!-- ===================== SECTION 1: Request Access ===================== -->
+  <div id="request" class="section active">
+    <div class="card">
+      <h2>Request Access</h2>
+      <p class="card-desc">Simulate how a third-party app requests scoped, time-limited access to your AI provider — without ever seeing your API key.</p>
+
+      <form id="requestForm" class="form-grid">
+        <div class="form-group">
+          <label for="appName">App Name</label>
+          <input type="text" id="appName" placeholder="My Cool App" required value="DemoApp">
+        </div>
+        <div class="form-group">
+          <label for="appUrl">App URL</label>
+          <input type="url" id="appUrl" placeholder="https://example.com" required value="https://demo.example.com">
+        </div>
+        <div class="form-group">
+          <label for="provider">Provider</label>
+          <select id="provider">
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="google">Google</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="models">Models (comma-separated)</label>
+          <input type="text" id="models" placeholder="gpt-4o, gpt-4o-mini" value="gpt-4o, gpt-4o-mini">
+        </div>
+        <div class="form-group full">
+          <label>Capabilities</label>
+          <div class="checkbox-group">
+            <label><input type="checkbox" value="chat" checked> Chat</label>
+            <label><input type="checkbox" value="embeddings"> Embeddings</label>
+            <label><input type="checkbox" value="images"> Images</label>
+            <label><input type="checkbox" value="audio"> Audio</label>
+            <label><input type="checkbox" value="code"> Code</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="maxRequests">Max Requests (optional)</label>
+          <input type="number" id="maxRequests" placeholder="100" min="0">
+        </div>
+        <div class="form-group">
+          <label for="maxBudget">Max Budget in cents (optional)</label>
+          <input type="number" id="maxBudget" placeholder="500" min="0">
+        </div>
+        <div class="form-group full">
+          <label for="reason">Reason for Access</label>
+          <textarea id="reason" rows="2" placeholder="Why does this app need AI access?" required>Demonstrating AIPassport delegated access flow</textarea>
+        </div>
+        <div class="form-group full">
+          <button type="submit" class="btn btn-primary" id="submitRequest">Submit Grant Request</button>
+        </div>
+      </form>
+
+      <div id="requestOutput" class="output"></div>
+    </div>
+  </div>
+
+  <!-- ===================== SECTION 2: Consent & Grants ===================== -->
+  <div id="grants" class="section">
+    <div class="card">
+      <h2>Consent &amp; Grants</h2>
+      <p class="card-desc">Review pending access requests, monitor active grants, and revoke access instantly. Your API keys never leave this server.</p>
+
+      <div style="margin-bottom: 1rem;">
+        <button class="btn btn-outline btn-sm" id="refreshGrants">Refresh</button>
+      </div>
+
+      <div id="grantsTableWrap">
+        <div class="empty-state"><p>No grants yet. Submit a request first.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SECTION 3: Try It ===================== -->
+  <div id="tryit" class="section">
+    <div class="card">
+      <h2>Try It</h2>
+      <p class="card-desc">Get a signed JWT token for an approved grant and make an AI call through the broker. The token is cryptographically signed but never contains your API key.</p>
+
+      <div class="inline-row">
+        <div class="form-group">
+          <label for="grantSelect">Select Approved Grant</label>
+          <select id="grantSelect">
+            <option value="">-- select --</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:0;">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary btn-sm" id="getTokenBtn" disabled>Get Token</button>
+        </div>
+      </div>
+
+      <div id="tokenDisplay" style="display:none;"></div>
+
+      <div id="chatSection" style="display:none; margin-top: 1.5rem;">
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <label for="modelInput">Model</label>
+          <input type="text" id="modelInput" placeholder="gpt-4o" value="gpt-4o">
+        </div>
+        <div class="chat-area">
+          <input type="text" id="chatInput" placeholder="Type a message to send via the AI proxy...">
+          <button class="btn btn-primary" id="sendChatBtn">Send via Proxy</button>
+        </div>
+        <div id="chatOutput" class="output"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = window.location.origin;
+
+// ---------- Tab switching ----------
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+
+    if (btn.dataset.tab === 'grants') loadGrants();
+    if (btn.dataset.tab === 'tryit') loadApprovedGrants();
+  });
+});
+
+// ---------- Helpers ----------
+function formatDate(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function badge(status) {
+  return `<span class="badge badge-${status}">${status}</span>`;
+}
+
+async function api(path, opts = {}) {
+  const url = `${API}${path}`;
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json', ...opts.headers },
+    ...opts,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+function showOutput(elId, content, isError = false) {
+  const el = document.getElementById(elId);
+  if (typeof content === 'object') content = JSON.stringify(content, null, 2);
+  el.textContent = content;
+  el.className = isError ? 'output msg-error' : 'output';
+}
+
+// ---------- Section 1: Request Access ----------
+document.getElementById('requestForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitRequest');
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Submitting...';
+
+  const capabilities = [...document.querySelectorAll('.checkbox-group input:checked')].map(c => c.value);
+  const modelsRaw = document.getElementById('models').value;
+  const models = modelsRaw.split(',').map(m => m.trim()).filter(Boolean);
+
+  const body = {
+    appName: document.getElementById('appName').value,
+    appUrl: document.getElementById('appUrl').value,
+    scope: {
+      provider: document.getElementById('provider').value,
+      models,
+      capabilities,
+    },
+    reason: document.getElementById('reason').value,
+  };
+
+  const maxReq = document.getElementById('maxRequests').value;
+  if (maxReq) body.scope.maxRequests = parseInt(maxReq, 10);
+  const maxBud = document.getElementById('maxBudget').value;
+  if (maxBud) body.scope.maxBudgetCents = parseInt(maxBud, 10);
+
+  try {
+    const data = await api('/grant-requests', { method: 'POST', body: JSON.stringify(body) });
+    showOutput('requestOutput', data);
+  } catch (err) {
+    showOutput('requestOutput', `Error: ${err.message}`, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = origText;
+  }
+});
+
+// ---------- Section 2: Grants ----------
+async function loadGrants() {
+  const wrap = document.getElementById('grantsTableWrap');
+  try {
+    const grants = await api('/grants');
+    if (!grants.length) {
+      wrap.innerHTML = '<div class="empty-state"><p>No grants yet. Submit a request first.</p></div>';
+      return;
+    }
+
+    const rows = grants.map(g => `
+      <tr>
+        <td><strong>${esc(g.appName)}</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">${esc(g.appUrl)}</span></td>
+        <td>${esc(g.scope.provider)}</td>
+        <td style="font-size:0.8rem">${g.scope.models.map(esc).join(', ')}</td>
+        <td>${badge(g.status)}</td>
+        <td style="white-space:nowrap">${formatDate(g.createdAt)}</td>
+        <td style="white-space:nowrap">${formatDate(g.expiresAt)}</td>
+        <td>${g.usageCount}${g.scope.maxRequests ? '/' + g.scope.maxRequests : ''}</td>
+        <td style="white-space:nowrap">${grantActions(g)}</td>
+      </tr>
+    `).join('');
+
+    wrap.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>App</th><th>Provider</th><th>Models</th><th>Status</th>
+            <th>Created</th><th>Expires</th><th>Usage</th><th>Actions</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  } catch (err) {
+    wrap.innerHTML = `<div class="msg msg-error">Failed to load grants: ${esc(err.message)}</div>`;
+  }
+}
+
+function grantActions(g) {
+  if (g.status === 'pending') {
+    return `<button class="btn btn-success btn-sm" onclick="grantAction('${g.id}','approve')">Approve</button>
+            <button class="btn btn-danger btn-sm" onclick="grantAction('${g.id}','deny')">Deny</button>`;
+  }
+  if (g.status === 'approved') {
+    return `<button class="btn btn-danger btn-sm" onclick="grantAction('${g.id}','revoke')">Revoke</button>`;
+  }
+  return '-';
+}
+
+async function grantAction(id, action) {
+  try {
+    await api(`/grants/${id}/${action}`, { method: 'POST', body: '{}' });
+    loadGrants();
+  } catch (err) {
+    alert(`Error: ${err.message}`);
+  }
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+document.getElementById('refreshGrants').addEventListener('click', loadGrants);
+
+// ---------- Section 3: Try It ----------
+let currentToken = null;
+
+async function loadApprovedGrants() {
+  const sel = document.getElementById('grantSelect');
+  try {
+    const grants = await api('/grants');
+    const approved = grants.filter(g => g.status === 'approved');
+    sel.innerHTML = '<option value="">-- select --</option>' +
+      approved.map(g => `<option value="${g.id}">${esc(g.appName)} (${g.scope.provider} - ${g.scope.models.join(', ')})</option>`).join('');
+  } catch { /* ignore */ }
+}
+
+document.getElementById('grantSelect').addEventListener('change', (e) => {
+  document.getElementById('getTokenBtn').disabled = !e.target.value;
+  document.getElementById('tokenDisplay').style.display = 'none';
+  document.getElementById('chatSection').style.display = 'none';
+  currentToken = null;
+});
+
+document.getElementById('getTokenBtn').addEventListener('click', async () => {
+  const grantId = document.getElementById('grantSelect').value;
+  if (!grantId) return;
+
+  const btn = document.getElementById('getTokenBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span>';
+
+  try {
+    const data = await api('/tokens', { method: 'POST', body: JSON.stringify({ grantId }) });
+    currentToken = data.token;
+
+    document.getElementById('tokenDisplay').style.display = 'block';
+    document.getElementById('tokenDisplay').innerHTML = `
+      <div class="token-box">
+        <strong>Signed JWT Token</strong>
+        <code>${esc(data.token)}</code>
+        <p class="note">This is a signed JWT. It proves your grant but never contains your API key. The broker validates it and injects the real key server-side. Expires: ${formatDate(data.expiresAt)}</p>
+      </div>`;
+
+    document.getElementById('chatSection').style.display = 'block';
+  } catch (err) {
+    document.getElementById('tokenDisplay').style.display = 'block';
+    document.getElementById('tokenDisplay').innerHTML = `<div class="msg msg-error">${esc(err.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Get Token';
+  }
+});
+
+document.getElementById('sendChatBtn').addEventListener('click', sendChat);
+document.getElementById('chatInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendChat();
+});
+
+async function sendChat() {
+  if (!currentToken) return;
+  const msg = document.getElementById('chatInput').value.trim();
+  if (!msg) return;
+  const model = document.getElementById('modelInput').value.trim() || 'gpt-4o';
+
+  const btn = document.getElementById('sendChatBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Sending...';
+  showOutput('chatOutput', 'Waiting for response...');
+
+  try {
+    const data = await api('/proxy/chat', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${currentToken}` },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: msg }],
+      }),
+    });
+    showOutput('chatOutput', data);
+  } catch (err) {
+    showOutput('chatOutput', `Error: ${err.message}`, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send via Proxy';
+  }
+}
+</script>
+</body>
+</html>
